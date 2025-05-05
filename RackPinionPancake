@@ -1,0 +1,54 @@
+import RPi.GPIO as GPIO
+import time
+
+# Use physical pin numbers
+GPIO.setmode(GPIO.BOARD)
+
+# Define pins (physical)
+ENA = 32   # Speed control (PWM)
+IN1 = 38   # Direction
+IN2 = 40   # Direction
+
+# Setup
+GPIO.setup(ENA, GPIO.OUT)
+GPIO.setup(IN1, GPIO.OUT)
+GPIO.setup(IN2, GPIO.OUT)
+
+# PWM setup (1 kHz frequency)
+pwm = GPIO.PWM(ENA, 1000)
+pwm.start(0)  # Start with 0% duty cycle
+
+def motor_forward(speed):
+    GPIO.output(IN1, GPIO.HIGH)
+    GPIO.output(IN2, GPIO.LOW)
+    pwm.ChangeDutyCycle(speed)
+
+def motor_backward(speed):
+    GPIO.output(IN1, GPIO.LOW)
+    GPIO.output(IN2, GPIO.HIGH)
+    pwm.ChangeDutyCycle(speed)
+
+def motor_stop():
+    GPIO.output(IN1, GPIO.LOW)
+    GPIO.output(IN2, GPIO.LOW)
+    pwm.ChangeDutyCycle(0)
+
+try:
+    print("Running backward...")
+    motor_backward(60)
+    time.sleep(1)  # Run backward for 1 second
+
+    print("Pausing...")
+    motor_stop()
+    time.sleep(3)  # Pause for 3 seconds
+
+    print("Running forward...")
+    motor_forward(60)
+    time.sleep(1)  # Run forward for 1 second
+
+    print("Stopping motor")
+    motor_stop()
+
+finally:
+    pwm.stop()
+    GPIO.cleanup()
